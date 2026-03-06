@@ -1,0 +1,12 @@
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+dist/
+build/
+.venv/
+.env
+*.pyc
+.ruff_cache/
+.pytest_cache/
+.claude/ralph-state.json
