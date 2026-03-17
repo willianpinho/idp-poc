@@ -1,0 +1,19 @@
+{
+  "mcpServers": {
+    "docker": {
+      "command": "npx",
+      "args": ["-y", "mcp-server-docker"]
+    }
+  },
+  "_metadata": {
+    "project": "idp-poc",
+    "description": "10-stage AI document processing pipeline",
+    "tech_stack": {
+      "backend": "FastAPI, Pydantic, AsyncPG, MinIO",
+      "ml": "PyTesseract, pdf2image, Anthropic SDK",
+      "ui": "Streamlit",
+      "database": "PostgreSQL (async via asyncpg)"
+    },
+    "recommended_agents": ["python-agent", "ai-engineer", "computer-vision-engineer"]
+  }
+}
