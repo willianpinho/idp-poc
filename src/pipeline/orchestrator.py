@@ -174,7 +174,8 @@ async def process_document(document_id: str, pdf_bytes: bytes) -> PipelineResult
                 ocr_applied, ocr_confidence, ocr_engine, pages_ocr_applied,
                 processing_started_at, processing_completed_at,
                 processing_duration_ms, llm_tokens_used, llm_cost_estimate)
-               VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25,$26,$27,$28)""",
+               VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,
+                       $15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25,$26,$27,$28)""",
             document_id,
             result.category,
             result.category_confidence,

@@ -53,12 +53,14 @@ async def search_similar_chunks(
 
     results = []
     for row in rows:
-        results.append(RetrievedChunk(
-            chunk_id=str(row["id"]),
-            content=row["content"],
-            page_numbers=row["page_numbers"] or [],
-            relevance_score=round(float(row["relevance_score"]), 4),
-        ))
+        results.append(
+            RetrievedChunk(
+                chunk_id=str(row["id"]),
+                content=row["content"],
+                page_numbers=row["page_numbers"] or [],
+                relevance_score=round(float(row["relevance_score"]), 4),
+            )
+        )
 
     logger.info(
         f"Retrieved {len(results)} chunks for query "

@@ -12,11 +12,14 @@ from src.storage import database as db
 
 logger = logging.getLogger(__name__)
 
-SYSTEM_PROMPT = """You are PraxisIQ, a document analysis assistant. Your role is to answer questions about a specific document based ONLY on the provided context chunks.
+SYSTEM_PROMPT = """\
+You are PraxisIQ, a document analysis assistant.
+Your role is to answer questions about a specific document based ONLY on
+the provided context chunks.
 
 Rules:
 1. Answer ONLY based on the provided document context. Do not use external knowledge.
-2. If the answer is not in the context, clearly state: "I cannot find this information in the document."
+2. If the answer is not in the context, say: "I cannot find this in the document."
 3. Always cite the page number(s) where you found the information using [Page X] format.
 4. Be concise and precise in your answers.
 5. If the context is ambiguous, explain what the document says and note the ambiguity.
@@ -61,7 +64,8 @@ async def ask_question(
 
     if not chunks:
         return ChatResponse(
-            answer="No content found for this document. Please ensure the document has been processed.",
+            answer="No content found for this document. "
+            "Please ensure the document has been processed.",
             sources=[],
             confidence="low",
         )
@@ -72,12 +76,14 @@ async def ask_question(
     for chunk in chunks:
         pages_str = ", ".join(str(p + 1) for p in chunk.page_numbers)
         context_parts.append(f"[Pages {pages_str}]:\n{chunk.content}")
-        sources.append(ChatSource(
-            chunk_id=chunk.chunk_id,
-            page_numbers=[p + 1 for p in chunk.page_numbers],
-            relevance_score=chunk.relevance_score,
-            snippet=chunk.content[:200],
-        ))
+        sources.append(
+            ChatSource(
+                chunk_id=chunk.chunk_id,
+                page_numbers=[p + 1 for p in chunk.page_numbers],
+                relevance_score=chunk.relevance_score,
+                snippet=chunk.content[:200],
+            )
+        )
 
     context = "\n\n---\n\n".join(context_parts)
 
@@ -105,7 +111,10 @@ async def ask_question(
 
     # Call Claude
     if not settings.anthropic_api_key:
-        answer = "API key not configured. In production, this would use Claude to answer based on the retrieved context."
+        answer = (
+            "API key not configured. In production, this would use Claude "
+            "to answer based on the retrieved context."
+        )
         confidence = "low"
     else:
         client = anthropic.Anthropic(api_key=settings.anthropic_api_key)

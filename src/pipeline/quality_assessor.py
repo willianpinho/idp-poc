@@ -49,9 +49,7 @@ def assess_quality(text: str) -> QualityResult:
     """Assess document quality using Claude."""
     if not settings.anthropic_api_key:
         logger.warning("No Anthropic API key, returning default quality")
-        return QualityResult(
-            readability=0.5, completeness=0.5, structure=0.5, overall=0.5
-        )
+        return QualityResult(readability=0.5, completeness=0.5, structure=0.5, overall=0.5)
 
     truncated = text[:4000]
     prompt = QUALITY_PROMPT.format(text=truncated)

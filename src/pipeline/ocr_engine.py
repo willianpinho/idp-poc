@@ -1,6 +1,5 @@
 """OCR engine using pytesseract for scanned/image PDFs."""
 
-import io
 import logging
 from dataclasses import dataclass, field
 
@@ -74,20 +73,24 @@ def run_ocr(pdf_bytes: bytes, pages_to_ocr: list[int] | None = None) -> OCRResul
             text = " ".join(t for t in text_parts if t.strip())
             avg_conf = sum(confidences) / len(confidences) / 100.0 if confidences else 0.0
 
-            result.pages.append(OCRPageResult(
-                page_number=i,
-                text=text,
-                confidence=round(avg_conf, 3),
-            ))
+            result.pages.append(
+                OCRPageResult(
+                    page_number=i,
+                    text=text,
+                    confidence=round(avg_conf, 3),
+                )
+            )
             result.pages_applied.append(i)
             result.applied = True
 
         except Exception as e:
             logger.error(f"OCR failed for page {i}: {e}")
-            result.pages.append(OCRPageResult(
-                page_number=i,
-                text="",
-                confidence=0.0,
-            ))
+            result.pages.append(
+                OCRPageResult(
+                    page_number=i,
+                    text="",
+                    confidence=0.0,
+                )
+            )
 
     return result

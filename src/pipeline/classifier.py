@@ -10,7 +10,8 @@ from src.config import settings
 
 logger = logging.getLogger(__name__)
 
-CLASSIFICATION_PROMPT = """Analyze the following document text and classify it into exactly ONE of these categories:
+CLASSIFICATION_PROMPT = """\
+Analyze the following document text and classify it into exactly ONE of these categories:
 - contract
 - invoice
 - report

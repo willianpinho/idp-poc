@@ -21,7 +21,8 @@ Return ONLY a valid JSON object with these fields:
   "language": {{"value": "ISO 639-1 code (e.g. en, pt, es)", "confidence": 0.0-1.0}},
   "summary": {{"value": "2-3 sentence summary of the document", "confidence": 0.0-1.0}},
   "key_entities": [
-    {{"name": "entity name", "type": "person|organization|location|date|amount|other", "confidence": 0.0-1.0}}
+    {{"name": "entity name", "type": "person|org|location|date|amount|other",
+      "confidence": 0.0-1.0}}
   ],
   "key_terms": ["term1", "term2", "term3"]
 }}
@@ -122,11 +123,13 @@ def extract_metadata(text: str) -> ExtractionResult:
 
         # Parse entities
         for entity in data.get("key_entities", [])[:10]:
-            result.key_entities.append(EntityItem(
-                name=entity.get("name", ""),
-                type=entity.get("type", "other"),
-                confidence=float(entity.get("confidence", 0.5)),
-            ))
+            result.key_entities.append(
+                EntityItem(
+                    name=entity.get("name", ""),
+                    type=entity.get("type", "other"),
+                    confidence=float(entity.get("confidence", 0.5)),
+                )
+            )
 
         # Parse key terms
         result.key_terms = data.get("key_terms", [])[:10]

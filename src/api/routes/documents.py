@@ -1,9 +1,11 @@
 """Document CRUD API routes."""
 
-import uuid
 import logging
+import uuid
 
-from fastapi import APIRouter, File, HTTPException, UploadFile
+from fastapi import APIRouter, File, HTTPException, Request, UploadFile
+from slowapi import Limiter
+from slowapi.util import get_remote_address
 
 from src.models.schemas import DocumentListResponse, DocumentResponse
 from src.storage import database as db
@@ -12,12 +14,17 @@ from src.storage.minio_client import delete_file, get_presigned_url, upload_file
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/documents", tags=["documents"])
 
+MAX_UPLOAD_SIZE = 20 * 1024 * 1024  # 20MB
+limiter = Limiter(key_func=get_remote_address)
+
 
 @router.post("", response_model=DocumentResponse, status_code=201)
-async def upload_document(file: UploadFile = File(...)):
+@limiter.limit("5/minute")
+async def upload_document(request: Request, file: UploadFile = File(...)):
     """Upload a PDF document.
 
     Stores the file in MinIO and creates a database record.
+    Limited to 20MB per file, 5 uploads per minute.
     """
     if not file.filename or not file.filename.lower().endswith(".pdf"):
         raise HTTPException(status_code=400, detail="Only PDF files are accepted")
@@ -25,6 +32,10 @@ async def upload_document(file: UploadFile = File(...)):
     content = await file.read()
     if not content:
         raise HTTPException(status_code=400, detail="Empty file")
+
+    if len(content) > MAX_UPLOAD_SIZE:
+        max_mb = MAX_UPLOAD_SIZE // (1024 * 1024)
+        raise HTTPException(status_code=413, detail=f"File too large. Maximum size is {max_mb}MB")
 
     doc_id = str(uuid.uuid4())
     storage_key = f"originals/{doc_id}/{file.filename}"
@@ -34,7 +45,9 @@ async def upload_document(file: UploadFile = File(...)):
 
     # Create database record
     row = await db.fetchrow(
-        """INSERT INTO documents (id, filename, original_filename, mime_type, file_size_bytes, storage_key, status)
+        """INSERT INTO documents (
+               id, filename, original_filename, mime_type,
+               file_size_bytes, storage_key, status)
            VALUES ($1, $2, $3, $4, $5, $6, 'uploaded')
            RETURNING *""",
         doc_id,
@@ -52,9 +65,7 @@ async def upload_document(file: UploadFile = File(...)):
 @router.get("", response_model=DocumentListResponse)
 async def list_documents():
     """List all documents."""
-    rows = await db.fetch(
-        "SELECT * FROM documents ORDER BY created_at DESC"
-    )
+    rows = await db.fetch("SELECT * FROM documents ORDER BY created_at DESC")
     return DocumentListResponse(
         documents=[_row_to_response(r) for r in rows],
         total=len(rows),

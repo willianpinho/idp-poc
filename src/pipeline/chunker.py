@@ -84,12 +84,14 @@ def chunk_text(
             if pb_start < end and pb_end > start:
                 chunk_pages.append(page_num)
 
-        chunks.append(TextChunk(
-            index=chunk_idx,
-            content=chunk_text_content,
-            page_numbers=chunk_pages,
-            token_count=estimate_tokens(chunk_text_content),
-        ))
+        chunks.append(
+            TextChunk(
+                index=chunk_idx,
+                content=chunk_text_content,
+                page_numbers=chunk_pages,
+                token_count=estimate_tokens(chunk_text_content),
+            )
+        )
 
         chunk_idx += 1
         # Move forward; if this was the last chunk (end reached combined length), stop

@@ -4,6 +4,9 @@ import json
 import logging
 
 from fastapi import APIRouter, HTTPException
+from fastapi import Request as FastAPIRequest
+from slowapi import Limiter
+from slowapi.util import get_remote_address
 
 from src.models.schemas import ChatMessageResponse, ChatRequest, ChatResponse, ChatSource
 from src.rag.chat import ask_question
@@ -11,10 +14,12 @@ from src.storage import database as db
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/documents", tags=["chat"])
+limiter = Limiter(key_func=get_remote_address)
 
 
 @router.post("/{document_id}/chat", response_model=ChatResponse)
-async def chat_with_document(document_id: str, request: ChatRequest):
+@limiter.limit("10/minute")
+async def chat_with_document(request: FastAPIRequest, document_id: str, body: ChatRequest):
     """Ask a question about a document using RAG."""
     # Verify document exists and is processed
     row = await db.fetchrow("SELECT status FROM documents WHERE id = $1", document_id)
@@ -27,7 +32,7 @@ async def chat_with_document(document_id: str, request: ChatRequest):
             detail=f"Document is not processed yet (status: {row['status']})",
         )
 
-    response = await ask_question(document_id, request.question)
+    response = await ask_question(document_id, body.question)
     return response
 
 
@@ -52,13 +57,15 @@ async def get_chat_history(document_id: str):
             sources_raw = json.loads(sources_raw)
         sources = [ChatSource(**s) for s in (sources_raw or [])]
 
-        results.append(ChatMessageResponse(
-            id=r["id"],
-            document_id=r["document_id"],
-            role=r["role"],
-            content=r["content"],
-            sources=sources,
-            created_at=r["created_at"],
-        ))
+        results.append(
+            ChatMessageResponse(
+                id=r["id"],
+                document_id=r["document_id"],
+                role=r["role"],
+                content=r["content"],
+                sources=sources,
+                created_at=r["created_at"],
+            )
+        )
 
     return results

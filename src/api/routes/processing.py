@@ -3,7 +3,9 @@
 import json
 import logging
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Request
+from slowapi import Limiter
+from slowapi.util import get_remote_address
 
 from src.models.schemas import AnalysisResponse, EntityItem
 from src.pipeline.orchestrator import process_document
@@ -12,10 +14,12 @@ from src.storage.minio_client import download_file
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/documents", tags=["processing"])
+limiter = Limiter(key_func=get_remote_address)
 
 
 @router.post("/{document_id}/process")
-async def trigger_processing(document_id: str):
+@limiter.limit("3/minute")
+async def trigger_processing(request: Request, document_id: str):
     """Trigger the full IDP pipeline for a document."""
     row = await db.fetchrow("SELECT * FROM documents WHERE id = $1", document_id)
     if not row:
@@ -45,9 +49,7 @@ async def trigger_processing(document_id: str):
 @router.get("/{document_id}/status")
 async def get_processing_status(document_id: str):
     """Get the processing status of a document."""
-    row = await db.fetchrow(
-        "SELECT status, page_count FROM documents WHERE id = $1", document_id
-    )
+    row = await db.fetchrow("SELECT status, page_count FROM documents WHERE id = $1", document_id)
     if not row:
         raise HTTPException(status_code=404, detail="Document not found")
 
