@@ -9,13 +9,15 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 WORKDIR /app
 
 # Install uv for fast package management
-COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
+RUN pip install --no-cache-dir uv
 
 # Copy project files
 COPY pyproject.toml .
-RUN uv pip install --system -e "."
+RUN uv pip install --system -e ".[ui]"
 
 COPY src/ src/
+COPY ui/ ui/
+COPY migrations/ migrations/
 
 EXPOSE 8000
 
