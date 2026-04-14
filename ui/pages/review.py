@@ -17,7 +17,9 @@ def render(api_url: str):
     items = data.get("items", [])
 
     if not items:
-        st.success("No documents pending review. All documents have been processed with high confidence.")
+        st.success(
+            "No documents pending review. All documents have been processed with high confidence."
+        )
         return
 
     st.metric("Pending Reviews", len(items))
@@ -29,15 +31,15 @@ def render(api_url: str):
         confidence = item.get("overall_confidence", 0) or 0
 
         with st.expander(
-            f"{tier_emoji} {item.get('original_filename', 'Unknown')} "
-            f"— {tier} ({confidence:.0%})",
+            f"{tier_emoji} {item.get('original_filename', 'Unknown')} — {tier} ({confidence:.0%})",
             expanded=tier == "LOW",
         ):
             col1, col2 = st.columns(2)
 
             with col1:
                 st.markdown(f"**Category:** {item.get('category', 'N/A')}")
-                st.markdown(f"**Category Confidence:** {item.get('category_confidence', 0) or 0:.0%}")
+                category_conf = item.get("category_confidence", 0) or 0
+                st.markdown(f"**Category Confidence:** {category_conf:.0%}")
                 st.markdown(f"**Pages:** {item.get('page_count', 'N/A')}")
                 st.markdown(f"**OCR Applied:** {'Yes' if item.get('ocr_applied') else 'No'}")
 
@@ -48,7 +50,8 @@ def render(api_url: str):
                 st.markdown(f"**Title:** {item.get('title') or 'N/A'}")
                 if item.get("summary"):
                     st.markdown(f"**Summary:** {item['summary'][:200]}...")
-                st.markdown(f"**Processing Time:** {item.get('processing_duration_ms', 0) or 0:,} ms")
+                duration = item.get("processing_duration_ms", 0) or 0
+                st.markdown(f"**Processing Time:** {duration:,} ms")
 
             # Review actions
             st.markdown("---")
