@@ -23,7 +23,13 @@ def render(api_url: str):
             if st.button("Upload & Process", type="primary", use_container_width=True):
                 with st.spinner("Uploading document..."):
                     # Upload
-                    files = {"file": (uploaded_file.name, uploaded_file.getvalue(), "application/pdf")}
+                    files = {
+                        "file": (
+                            uploaded_file.name,
+                            uploaded_file.getvalue(),
+                            "application/pdf",
+                        )
+                    }
                     resp = requests.post(f"{api_url}/api/documents", files=files)
 
                     if resp.status_code != 201:
@@ -55,11 +61,11 @@ def render(api_url: str):
 
                 | Field | Value |
                 |-------|-------|
-                | **Status** | {result.get('status')} |
-                | **Category** | {result.get('category', 'N/A')} |
+                | **Status** | {result.get("status")} |
+                | **Category** | {result.get("category", "N/A")} |
                 | **Confidence Tier** | :{tier_color}[**{tier}**] |
-                | **Overall Confidence** | {result.get('overall_confidence', 0):.2%} |
-                | **Tokens Used** | {result.get('tokens_used', 0):,} |
+                | **Overall Confidence** | {result.get("overall_confidence", 0):.2%} |
+                | **Tokens Used** | {result.get("tokens_used", 0):,} |
                 """)
 
                 if result.get("summary"):
@@ -71,7 +77,13 @@ def render(api_url: str):
         with col2:
             if st.button("Upload Only", use_container_width=True):
                 with st.spinner("Uploading..."):
-                    files = {"file": (uploaded_file.name, uploaded_file.getvalue(), "application/pdf")}
+                    files = {
+                        "file": (
+                            uploaded_file.name,
+                            uploaded_file.getvalue(),
+                            "application/pdf",
+                        )
+                    }
                     resp = requests.post(f"{api_url}/api/documents", files=files)
                     if resp.status_code == 201:
                         st.success(f"Uploaded: `{resp.json()['id']}`")

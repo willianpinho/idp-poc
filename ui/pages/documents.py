@@ -70,7 +70,8 @@ def _render_detail(api_url: str, doc_id: str):
     tier = analysis.get("confidence_tier", "UNKNOWN")
     tier_emoji = {"HIGH": "✅", "MEDIUM": "⚠️", "LOW": "❌"}.get(tier, "❓")
 
-    st.markdown(f"### {tier_emoji} Confidence: **{tier}** ({analysis.get('overall_confidence', 0):.2%})")
+    confidence_pct = analysis.get("overall_confidence", 0)
+    st.markdown(f"### {tier_emoji} Confidence: **{tier}** ({confidence_pct:.2%})")
 
     # Classification & Extraction
     col1, col2 = st.columns(2)
@@ -176,8 +177,7 @@ def _render_chat(api_url: str, doc_id: str):
                     with st.expander("Sources"):
                         for s in result["sources"]:
                             pages = ", ".join(str(p) for p in s.get("page_numbers", []))
-                            st.markdown(
-                                f"- **Pages {pages}** (relevance: {s.get('relevance_score', 0):.2%})"
-                            )
+                            relevance = s.get("relevance_score", 0)
+                            st.markdown(f"- **Pages {pages}** (relevance: {relevance:.2%})")
             else:
                 st.error(f"Failed: {resp.text}")
