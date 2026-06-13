@@ -1,4 +1,4 @@
-# PraxisIQ - Intelligent Document Processing POC
+# Intelligent Document Processing POC
 
 ## Product Requirements Document
 
@@ -13,7 +13,7 @@
 
 Python-based Intelligent Document Processing (IDP) proof of concept that demonstrates a production-grade pipeline for PDF upload, AI-powered analysis, metadata extraction, OCR, classification, and conversational Q&A over documents.
 
-**This is NOT a product** — it is a technical demonstration showcasing expertise in:
+It is a technical demonstration showcasing expertise in:
 
 - Intelligent Document Processing (OCR, classification, extraction pipelines)
 - LLM-based document understanding systems
@@ -257,7 +257,7 @@ CREATE TABLE chat_messages (
 ### MinIO Storage Structure
 
 ```
-praxisiq-bucket/
+bucket/
   ├── originals/
   │   └── {document_id}/{original_filename}
   ├── thumbnails/
@@ -435,7 +435,7 @@ Provide confidence in your answer (high/medium/low).
 ## 10. Project Structure
 
 ```
-praxisiq/
+app/
 ├── docs/
 │   └── PRD.md
 ├── src/
@@ -502,9 +502,9 @@ services:
     image: pgvector/pgvector:pg16
     ports: ["5432:5432"]
     environment:
-      POSTGRES_DB: praxisiq
-      POSTGRES_USER: praxisiq
-      POSTGRES_PASSWORD: praxisiq_dev
+      POSTGRES_DB: idp-app
+      POSTGRES_USER: idp-app
+      POSTGRES_PASSWORD: idp-app_dev
     volumes:
       - pgdata:/var/lib/postgresql/data
       - ./migrations:/docker-entrypoint-initdb.d
@@ -548,13 +548,13 @@ ANTHROPIC_API_KEY=sk-ant-...
 ANTHROPIC_MODEL=claude-sonnet-4-20250514
 
 # PostgreSQL
-DATABASE_URL=postgresql://praxisiq:praxisiq_dev@localhost:5432/praxisiq
+DATABASE_URL=postgresql://idp-app:idp-app_dev@localhost:5432/idp-app
 
 # MinIO
 MINIO_ENDPOINT=localhost:9000
 MINIO_ACCESS_KEY=minioadmin
 MINIO_SECRET_KEY=minioadmin
-MINIO_BUCKET=praxisiq
+MINIO_BUCKET=idp-app
 MINIO_USE_SSL=false
 
 # Embeddings (Voyage AI or OpenAI)

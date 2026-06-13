@@ -7,13 +7,13 @@ class Settings(BaseSettings):
     anthropic_model: str = "claude-sonnet-4-20250514"
 
     # PostgreSQL
-    database_url: str = "postgresql://praxisiq:praxisiq_dev@localhost:5433/praxisiq"
+    database_url: str = "postgresql://idp-app:idp-app_dev@localhost:5433/idp-app"
 
     # MinIO
     minio_endpoint: str = "localhost:9000"
     minio_access_key: str = "minioadmin"
     minio_secret_key: str = "minioadmin"
-    minio_bucket: str = "praxisiq"
+    minio_bucket: str = "idp-app"
     minio_use_ssl: bool = False
 
     # Embeddings

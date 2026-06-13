@@ -1,5 +1,5 @@
 [project]
-name = "praxisiq"
+name = "idp-app"
 version = "0.1.0"
 description = "Intelligent Document Processing POC"
 requires-python = ">=3.12"

@@ -12,7 +12,7 @@ from src.storage import database as db
 
 logger = logging.getLogger(__name__)
 
-SYSTEM_PROMPT = """You are PraxisIQ, a document analysis assistant. Your role is to answer questions about a specific document based ONLY on the provided context chunks.
+SYSTEM_PROMPT = """You are IDP App, a document analysis assistant. Your role is to answer questions about a specific document based ONLY on the provided context chunks.
 
 Rules:
 1. Answer ONLY based on the provided document context. Do not use external knowledge.

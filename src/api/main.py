@@ -19,16 +19,16 @@ logger = logging.getLogger(__name__)
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Startup and shutdown events."""
-    logger.info("Starting PraxisIQ API...")
+    logger.info("Starting IDP App API...")
     await get_pool()
     logger.info("Database pool initialized")
     yield
-    logger.info("Shutting down PraxisIQ API...")
+    logger.info("Shutting down IDP App API...")
     await close_pool()
 
 
 app = FastAPI(
-    title="PraxisIQ",
+    title="IDP App",
     description="Intelligent Document Processing POC",
     version="0.1.0",
     lifespan=lifespan,
@@ -51,4 +51,4 @@ app.include_router(review.router)
 
 @app.get("/health")
 async def health_check():
-    return {"status": "healthy", "service": "praxisiq"}
+    return {"status": "healthy", "service": "idp-app"}
