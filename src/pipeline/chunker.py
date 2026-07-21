@@ -39,8 +39,12 @@ def chunk_text(
     Returns:
         List of TextChunk objects.
     """
-    chunk_size = chunk_size or settings.chunk_size
-    chunk_overlap = chunk_overlap or settings.chunk_overlap
+    # `or` would silently discard an explicit 0 (e.g. "no overlap"), since 0 is
+    # falsy -- use an explicit None check so callers can opt out of overlap.
+    if chunk_size is None:
+        chunk_size = settings.chunk_size
+    if chunk_overlap is None:
+        chunk_overlap = settings.chunk_overlap
 
     # Convert token sizes to approximate character sizes
     char_size = chunk_size * 4
@@ -84,12 +88,14 @@ def chunk_text(
             if pb_start < end and pb_end > start:
                 chunk_pages.append(page_num)
 
-        chunks.append(TextChunk(
-            index=chunk_idx,
-            content=chunk_text_content,
-            page_numbers=chunk_pages,
-            token_count=estimate_tokens(chunk_text_content),
-        ))
+        chunks.append(
+            TextChunk(
+                index=chunk_idx,
+                content=chunk_text_content,
+                page_numbers=chunk_pages,
+                token_count=estimate_tokens(chunk_text_content),
+            )
+        )
 
         chunk_idx += 1
         # Move forward; if this was the last chunk (end reached combined length), stop
