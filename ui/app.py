@@ -6,6 +6,8 @@ navigation (e.g. ``/upload``) breaks relative asset paths in the frontend
 bundle and yields 404s for ``_stcore/host-config`` and ``_stcore/health``.
 """
 
+import os
+
 import streamlit as st
 
 st.set_page_config(
@@ -15,7 +17,7 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
-API_URL = "http://localhost:8000"
+API_URL = os.environ.get("API_URL", "http://localhost:8000")
 
 # Map of nav labels to query-param slugs. Order defines sidebar order.
 PAGES: dict[str, str] = {
