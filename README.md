@@ -16,6 +16,10 @@
   <img src="https://img.shields.io/badge/License-MIT-green" alt="MIT License" />
 </p>
 
+<p align="center">
+  <b>🔗 <a href="https://idp-poc.dev.willianpinho.com">Live Demo</a></b>
+</p>
+
 ---
 
 ## Architecture
@@ -120,73 +124,73 @@ curl -X POST http://localhost:8000/api/documents/{id}/process
 
 ## Pipeline Stages
 
-| Stage | Name | Technology | Output |
-|-------|------|-----------|--------|
-| 1 | **PDF Parsing** | pypdf | Raw text per page, page count |
-| 2 | **OCR** | pytesseract + pdf2image (300 DPI) | Text for image-only pages |
-| 3 | **Content Merge** | Custom | Best text source per page |
-| 4 | **Classification** | Claude Sonnet 4 | Category + confidence (contract, invoice, report, legal, medical, academic, ...) |
-| 5 | **Metadata Extraction** | Claude Sonnet 4 | Title, author, date, language, entities, key terms, summary |
-| 6 | **Quality Assessment** | Claude Sonnet 4 | Readability, completeness, and structure scores |
-| 7 | **Confidence Routing** | Weighted aggregation | Tier (HIGH/MEDIUM/LOW), review flag |
-| 8 | **Text Chunking** | Sliding window | 512-token chunks with 50-token overlap |
-| 9 | **Embeddings** | Voyage AI (voyage-3) | 1024-dim vectors (hash fallback) |
-| 10 | **Store Results** | PostgreSQL + pgvector | Persistent analysis + vector index |
+| Stage | Name                    | Technology                        | Output                                                                           |
+| ----- | ----------------------- | --------------------------------- | -------------------------------------------------------------------------------- |
+| 1     | **PDF Parsing**         | pypdf                             | Raw text per page, page count                                                    |
+| 2     | **OCR**                 | pytesseract + pdf2image (300 DPI) | Text for image-only pages                                                        |
+| 3     | **Content Merge**       | Custom                            | Best text source per page                                                        |
+| 4     | **Classification**      | Claude Sonnet 4                   | Category + confidence (contract, invoice, report, legal, medical, academic, ...) |
+| 5     | **Metadata Extraction** | Claude Sonnet 4                   | Title, author, date, language, entities, key terms, summary                      |
+| 6     | **Quality Assessment**  | Claude Sonnet 4                   | Readability, completeness, and structure scores                                  |
+| 7     | **Confidence Routing**  | Weighted aggregation              | Tier (HIGH/MEDIUM/LOW), review flag                                              |
+| 8     | **Text Chunking**       | Sliding window                    | 512-token chunks with 50-token overlap                                           |
+| 9     | **Embeddings**          | Voyage AI (voyage-3)              | 1024-dim vectors (hash fallback)                                                 |
+| 10    | **Store Results**       | PostgreSQL + pgvector             | Persistent analysis + vector index                                               |
 
 ## API Reference
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `POST` | `/api/documents` | Upload a PDF document |
-| `GET` | `/api/documents` | List all documents with status |
-| `POST` | `/api/documents/{id}/process` | Trigger the 10-stage pipeline |
-| `GET` | `/api/documents/{id}/analysis` | Retrieve full analysis results |
-| `POST` | `/api/documents/{id}/chat` | RAG-powered Q&A over document |
-| `GET` | `/api/review/queue` | List documents pending human review |
-| `PATCH` | `/api/review/{id}` | Update review status and notes |
-| `GET` | `/health` | Health check |
+| Method  | Endpoint                       | Description                         |
+| ------- | ------------------------------ | ----------------------------------- |
+| `POST`  | `/api/documents`               | Upload a PDF document               |
+| `GET`   | `/api/documents`               | List all documents with status      |
+| `POST`  | `/api/documents/{id}/process`  | Trigger the 10-stage pipeline       |
+| `GET`   | `/api/documents/{id}/analysis` | Retrieve full analysis results      |
+| `POST`  | `/api/documents/{id}/chat`     | RAG-powered Q&A over document       |
+| `GET`   | `/api/review/queue`            | List documents pending human review |
+| `PATCH` | `/api/review/{id}`             | Update review status and notes      |
+| `GET`   | `/health`                      | Health check                        |
 
 Interactive API docs available at [http://localhost:8000/docs](http://localhost:8000/docs) (Swagger UI).
 
 ## Environment Variables
 
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `ANTHROPIC_API_KEY` | -- | **Required.** Anthropic API key for Claude |
-| `ANTHROPIC_MODEL` | `claude-sonnet-4-20250514` | Claude model identifier |
-| `VOYAGE_API_KEY` | -- | **Required.** Voyage AI API key for embeddings |
-| `DATABASE_URL` | `postgresql://idp-app:idp-app_dev@localhost:5433/idp-app` | PostgreSQL connection string |
-| `MINIO_ENDPOINT` | `localhost:9000` | MinIO S3-compatible endpoint |
-| `MINIO_ACCESS_KEY` | `minioadmin` | MinIO access key |
-| `MINIO_SECRET_KEY` | `minioadmin` | MinIO secret key |
-| `MINIO_BUCKET` | `idp-app` | MinIO bucket name |
-| `MINIO_USE_SSL` | `false` | Enable SSL for MinIO |
-| `EMBEDDING_PROVIDER` | `voyage` | Embedding provider |
-| `EMBEDDING_MODEL` | `voyage-3` | Embedding model name |
-| `EMBEDDING_DIMENSIONS` | `1024` | Embedding vector dimensions |
-| `CONFIDENCE_HIGH_THRESHOLD` | `0.85` | Auto-accept threshold |
-| `CONFIDENCE_MEDIUM_THRESHOLD` | `0.60` | Review threshold |
-| `CHUNK_SIZE` | `512` | Tokens per chunk |
-| `CHUNK_OVERLAP` | `50` | Overlap between chunks |
-| `API_HOST` | `0.0.0.0` | API bind address |
-| `API_PORT` | `8000` | API port |
+| Variable                      | Default                                                   | Description                                    |
+| ----------------------------- | --------------------------------------------------------- | ---------------------------------------------- |
+| `ANTHROPIC_API_KEY`           | --                                                        | **Required.** Anthropic API key for Claude     |
+| `ANTHROPIC_MODEL`             | `claude-sonnet-4-20250514`                                | Claude model identifier                        |
+| `VOYAGE_API_KEY`              | --                                                        | **Required.** Voyage AI API key for embeddings |
+| `DATABASE_URL`                | `postgresql://idp-app:idp-app_dev@localhost:5433/idp-app` | PostgreSQL connection string                   |
+| `MINIO_ENDPOINT`              | `localhost:9000`                                          | MinIO S3-compatible endpoint                   |
+| `MINIO_ACCESS_KEY`            | `minioadmin`                                              | MinIO access key                               |
+| `MINIO_SECRET_KEY`            | `minioadmin`                                              | MinIO secret key                               |
+| `MINIO_BUCKET`                | `idp-app`                                                 | MinIO bucket name                              |
+| `MINIO_USE_SSL`               | `false`                                                   | Enable SSL for MinIO                           |
+| `EMBEDDING_PROVIDER`          | `voyage`                                                  | Embedding provider                             |
+| `EMBEDDING_MODEL`             | `voyage-3`                                                | Embedding model name                           |
+| `EMBEDDING_DIMENSIONS`        | `1024`                                                    | Embedding vector dimensions                    |
+| `CONFIDENCE_HIGH_THRESHOLD`   | `0.85`                                                    | Auto-accept threshold                          |
+| `CONFIDENCE_MEDIUM_THRESHOLD` | `0.60`                                                    | Review threshold                               |
+| `CHUNK_SIZE`                  | `512`                                                     | Tokens per chunk                               |
+| `CHUNK_OVERLAP`               | `50`                                                      | Overlap between chunks                         |
+| `API_HOST`                    | `0.0.0.0`                                                 | API bind address                               |
+| `API_PORT`                    | `8000`                                                    | API port                                       |
 
 ## Tech Stack
 
-| Layer | Technology | Purpose |
-|-------|-----------|---------|
-| **API** | FastAPI, Pydantic v2, uvicorn | Async REST API with validation |
-| **AI/LLM** | Anthropic Claude Sonnet 4 | Classification, extraction, quality assessment, chat |
-| **Embeddings** | Voyage AI (voyage-3, 1024d) | Semantic vector embeddings for RAG |
-| **OCR** | Tesseract + pdf2image | Text extraction from scanned/image PDFs |
-| **PDF** | pypdf | Native PDF text extraction |
-| **Database** | PostgreSQL 16 + pgvector | Relational storage + vector similarity search |
-| **Object Storage** | MinIO (S3-compatible) | PDF file storage |
-| **UI** | Streamlit + Plotly | Interactive dashboard |
-| **Containers** | Docker Compose | Infrastructure orchestration |
-| **Package Mgmt** | uv + hatchling | Fast dependency resolution and builds |
-| **Linting** | Ruff | Code formatting and linting |
-| **Testing** | pytest + pytest-asyncio | Async test suite |
+| Layer              | Technology                    | Purpose                                              |
+| ------------------ | ----------------------------- | ---------------------------------------------------- |
+| **API**            | FastAPI, Pydantic v2, uvicorn | Async REST API with validation                       |
+| **AI/LLM**         | Anthropic Claude Sonnet 4     | Classification, extraction, quality assessment, chat |
+| **Embeddings**     | Voyage AI (voyage-3, 1024d)   | Semantic vector embeddings for RAG                   |
+| **OCR**            | Tesseract + pdf2image         | Text extraction from scanned/image PDFs              |
+| **PDF**            | pypdf                         | Native PDF text extraction                           |
+| **Database**       | PostgreSQL 16 + pgvector      | Relational storage + vector similarity search        |
+| **Object Storage** | MinIO (S3-compatible)         | PDF file storage                                     |
+| **UI**             | Streamlit + Plotly            | Interactive dashboard                                |
+| **Containers**     | Docker Compose                | Infrastructure orchestration                         |
+| **Package Mgmt**   | uv + hatchling                | Fast dependency resolution and builds                |
+| **Linting**        | Ruff                          | Code formatting and linting                          |
+| **Testing**        | pytest + pytest-asyncio       | Async test suite                                     |
 
 ## Project Structure
 
