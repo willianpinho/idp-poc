@@ -45,9 +45,7 @@ async def trigger_processing(document_id: str):
 @router.get("/{document_id}/status")
 async def get_processing_status(document_id: str):
     """Get the processing status of a document."""
-    row = await db.fetchrow(
-        "SELECT status, page_count FROM documents WHERE id = $1", document_id
-    )
+    row = await db.fetchrow("SELECT status, page_count FROM documents WHERE id = $1", document_id)
     if not row:
         raise HTTPException(status_code=404, detail="Document not found")
 

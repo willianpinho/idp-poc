@@ -1,7 +1,7 @@
 """Document CRUD API routes."""
 
-import uuid
 import logging
+import uuid
 
 from fastapi import APIRouter, File, HTTPException, UploadFile
 
@@ -34,7 +34,8 @@ async def upload_document(file: UploadFile = File(...)):
 
     # Create database record
     row = await db.fetchrow(
-        """INSERT INTO documents (id, filename, original_filename, mime_type, file_size_bytes, storage_key, status)
+        """INSERT INTO documents
+           (id, filename, original_filename, mime_type, file_size_bytes, storage_key, status)
            VALUES ($1, $2, $3, $4, $5, $6, 'uploaded')
            RETURNING *""",
         doc_id,
@@ -52,9 +53,7 @@ async def upload_document(file: UploadFile = File(...)):
 @router.get("", response_model=DocumentListResponse)
 async def list_documents():
     """List all documents."""
-    rows = await db.fetch(
-        "SELECT * FROM documents ORDER BY created_at DESC"
-    )
+    rows = await db.fetch("SELECT * FROM documents ORDER BY created_at DESC")
     return DocumentListResponse(
         documents=[_row_to_response(r) for r in rows],
         total=len(rows),

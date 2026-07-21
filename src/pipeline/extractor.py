@@ -11,7 +11,8 @@ from src.models.schemas import EntityItem
 
 logger = logging.getLogger(__name__)
 
-EXTRACTION_PROMPT = """Extract structured metadata from the following document text.
+EXTRACTION_PROMPT = (
+    """Extract structured metadata from the following document text.
 
 Return ONLY a valid JSON object with these fields:
 {{
@@ -21,7 +22,8 @@ Return ONLY a valid JSON object with these fields:
   "language": {{"value": "ISO 639-1 code (e.g. en, pt, es)", "confidence": 0.0-1.0}},
   "summary": {{"value": "2-3 sentence summary of the document", "confidence": 0.0-1.0}},
   "key_entities": [
-    {{"name": "entity name", "type": "person|organization|location|date|amount|other", "confidence": 0.0-1.0}}
+    {{"name": "entity name", "type": "person|organization|location|date|amount|other", """
+    """"confidence": 0.0-1.0}}
   ],
   "key_terms": ["term1", "term2", "term3"]
 }}
@@ -38,6 +40,7 @@ Document text (first 6000 characters):
 ---
 
 Return only the JSON object, no other text."""
+)
 
 
 @dataclass
@@ -122,11 +125,13 @@ def extract_metadata(text: str) -> ExtractionResult:
 
         # Parse entities
         for entity in data.get("key_entities", [])[:10]:
-            result.key_entities.append(EntityItem(
-                name=entity.get("name", ""),
-                type=entity.get("type", "other"),
-                confidence=float(entity.get("confidence", 0.5)),
-            ))
+            result.key_entities.append(
+                EntityItem(
+                    name=entity.get("name", ""),
+                    type=entity.get("type", "other"),
+                    confidence=float(entity.get("confidence", 0.5)),
+                )
+            )
 
         # Parse key terms
         result.key_terms = data.get("key_terms", [])[:10]

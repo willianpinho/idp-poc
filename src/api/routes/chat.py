@@ -52,13 +52,15 @@ async def get_chat_history(document_id: str):
             sources_raw = json.loads(sources_raw)
         sources = [ChatSource(**s) for s in (sources_raw or [])]
 
-        results.append(ChatMessageResponse(
-            id=r["id"],
-            document_id=r["document_id"],
-            role=r["role"],
-            content=r["content"],
-            sources=sources,
-            created_at=r["created_at"],
-        ))
+        results.append(
+            ChatMessageResponse(
+                id=r["id"],
+                document_id=r["document_id"],
+                role=r["role"],
+                content=r["content"],
+                sources=sources,
+                created_at=r["created_at"],
+            )
+        )
 
     return results

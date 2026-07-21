@@ -1,5 +1,6 @@
-import asyncpg
 from contextlib import asynccontextmanager
+
+import asyncpg
 
 from src.config import settings
 

@@ -10,8 +10,10 @@ from src.config import settings
 
 logger = logging.getLogger(__name__)
 
-CLASSIFICATION_PROMPT = """Analyze the following document text and classify it into exactly ONE of these categories:
-- contract
+CLASSIFICATION_PROMPT = (
+    "Analyze the following document text and classify it into exactly ONE "
+    "of these categories:\n"
+    """- contract
 - invoice
 - report
 - legal
@@ -35,6 +37,7 @@ Document text (first 4000 characters):
 ---
 
 Return only the JSON object, no other text."""
+)
 
 
 @dataclass

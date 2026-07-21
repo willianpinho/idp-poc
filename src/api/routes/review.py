@@ -1,11 +1,10 @@
 """Review queue API routes."""
 
-import json
 import logging
 
 from fastapi import APIRouter, HTTPException
 
-from src.models.schemas import EntityItem, ReviewUpdateRequest
+from src.models.schemas import ReviewUpdateRequest
 from src.storage import database as db
 
 logger = logging.getLogger(__name__)
@@ -39,9 +38,7 @@ async def get_review_queue():
 @router.patch("/{analysis_id}")
 async def update_review(analysis_id: str, request: ReviewUpdateRequest):
     """Update review status for a document analysis."""
-    row = await db.fetchrow(
-        "SELECT document_id FROM document_analysis WHERE id = $1", analysis_id
-    )
+    row = await db.fetchrow("SELECT document_id FROM document_analysis WHERE id = $1", analysis_id)
     if not row:
         raise HTTPException(status_code=404, detail="Analysis not found")
 

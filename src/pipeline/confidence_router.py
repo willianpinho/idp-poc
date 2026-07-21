@@ -64,11 +64,7 @@ def calculate_overall_confidence(
         # Redistribute OCR weight proportionally to other stages
         ocr_weight = STAGE_WEIGHTS["ocr"]
         remaining_weight = 1.0 - ocr_weight
-        weights = {
-            k: v / remaining_weight
-            for k, v in STAGE_WEIGHTS.items()
-            if k != "ocr"
-        }
+        weights = {k: v / remaining_weight for k, v in STAGE_WEIGHTS.items() if k != "ocr"}
 
     # Calculate weighted average
     overall = sum(stages[k] * weights[k] for k in stages)
@@ -134,8 +130,7 @@ def route_document(
             )
         else:
             explanation = (
-                f"Overall confidence ({overall:.2f}) is between thresholds. "
-                f"Flagged for review."
+                f"Overall confidence ({overall:.2f}) is between thresholds. Flagged for review."
             )
     else:
         tier = "LOW"
@@ -146,10 +141,7 @@ def route_document(
             f"Queued for human review."
         )
 
-    logger.info(
-        f"Routing decision: tier={tier}, overall={overall:.3f}, "
-        f"low_stages={low_stages}"
-    )
+    logger.info(f"Routing decision: tier={tier}, overall={overall:.3f}, low_stages={low_stages}")
 
     return RoutingDecision(
         overall_confidence=overall,
