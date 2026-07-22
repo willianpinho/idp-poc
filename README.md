@@ -58,7 +58,7 @@
 
 **Confidence-Based Routing** -- A weighted aggregation of classification, extraction, OCR, and quality scores determines whether a document is auto-accepted, flagged for review, or held for human intervention.
 
-**RAG-Powered Chat** -- Ask questions about any processed document. The system retrieves relevant chunks via pgvector similarity search and generates grounded answers with source citations.
+**RAG-Powered Chat** -- Ask questions about any processed document. The system retrieves relevant chunks via pgvector similarity search and generates grounded answers with source citations. Retrieval quality depends on `VOYAGE_API_KEY`: with it set, chunks are embedded with Voyage AI (real semantic similarity); without it, the pipeline falls back to a deterministic SHA-256 hash embedding with no semantic meaning, so retrieval degrades to non-semantic matching.
 
 **Human Review Queue** -- Documents below the confidence threshold surface in a review queue sorted by urgency. Reviewers can approve, annotate, or reject with notes.
 
@@ -154,43 +154,43 @@ Interactive API docs available at [http://localhost:8000/docs](http://localhost:
 
 ## Environment Variables
 
-| Variable                      | Default                                                   | Description                                    |
-| ----------------------------- | --------------------------------------------------------- | ---------------------------------------------- |
-| `ANTHROPIC_API_KEY`           | --                                                        | **Required.** Anthropic API key for Claude     |
-| `ANTHROPIC_MODEL`             | `claude-sonnet-4-20250514`                                | Claude model identifier                        |
-| `VOYAGE_API_KEY`              | --                                                        | **Required.** Voyage AI API key for embeddings |
-| `DATABASE_URL`                | `postgresql://idp-app:idp-app_dev@localhost:5433/idp-app` | PostgreSQL connection string                   |
-| `MINIO_ENDPOINT`              | `localhost:9000`                                          | MinIO S3-compatible endpoint                   |
-| `MINIO_ACCESS_KEY`            | `minioadmin`                                              | MinIO access key                               |
-| `MINIO_SECRET_KEY`            | `minioadmin`                                              | MinIO secret key                               |
-| `MINIO_BUCKET`                | `idp-app`                                                 | MinIO bucket name                              |
-| `MINIO_USE_SSL`               | `false`                                                   | Enable SSL for MinIO                           |
-| `EMBEDDING_PROVIDER`          | `voyage`                                                  | Embedding provider                             |
-| `EMBEDDING_MODEL`             | `voyage-3`                                                | Embedding model name                           |
-| `EMBEDDING_DIMENSIONS`        | `1024`                                                    | Embedding vector dimensions                    |
-| `CONFIDENCE_HIGH_THRESHOLD`   | `0.85`                                                    | Auto-accept threshold                          |
-| `CONFIDENCE_MEDIUM_THRESHOLD` | `0.60`                                                    | Review threshold                               |
-| `CHUNK_SIZE`                  | `512`                                                     | Tokens per chunk                               |
-| `CHUNK_OVERLAP`               | `50`                                                      | Overlap between chunks                         |
-| `API_HOST`                    | `0.0.0.0`                                                 | API bind address                               |
-| `API_PORT`                    | `8000`                                                    | API port                                       |
+| Variable                      | Default                                                   | Description                                                                                                                                       |
+| ----------------------------- | --------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `ANTHROPIC_API_KEY`           | --                                                        | **Required.** Anthropic API key for Claude                                                                                                        |
+| `ANTHROPIC_MODEL`             | `claude-sonnet-4-20250514`                                | Claude model identifier                                                                                                                           |
+| `VOYAGE_API_KEY`              | --                                                        | **Optional.** Voyage AI API key for semantic embeddings -- falls back to a deterministic SHA-256 hash embedding (no semantic similarity) if unset |
+| `DATABASE_URL`                | `postgresql://idp-app:idp-app_dev@localhost:5433/idp-app` | PostgreSQL connection string                                                                                                                      |
+| `MINIO_ENDPOINT`              | `localhost:9000`                                          | MinIO S3-compatible endpoint                                                                                                                      |
+| `MINIO_ACCESS_KEY`            | `minioadmin`                                              | MinIO access key                                                                                                                                  |
+| `MINIO_SECRET_KEY`            | `minioadmin`                                              | MinIO secret key                                                                                                                                  |
+| `MINIO_BUCKET`                | `idp-app`                                                 | MinIO bucket name                                                                                                                                 |
+| `MINIO_USE_SSL`               | `false`                                                   | Enable SSL for MinIO                                                                                                                              |
+| `EMBEDDING_PROVIDER`          | `voyage`                                                  | Embedding provider                                                                                                                                |
+| `EMBEDDING_MODEL`             | `voyage-3`                                                | Embedding model name                                                                                                                              |
+| `EMBEDDING_DIMENSIONS`        | `1024`                                                    | Embedding vector dimensions                                                                                                                       |
+| `CONFIDENCE_HIGH_THRESHOLD`   | `0.85`                                                    | Auto-accept threshold                                                                                                                             |
+| `CONFIDENCE_MEDIUM_THRESHOLD` | `0.60`                                                    | Review threshold                                                                                                                                  |
+| `CHUNK_SIZE`                  | `512`                                                     | Tokens per chunk                                                                                                                                  |
+| `CHUNK_OVERLAP`               | `50`                                                      | Overlap between chunks                                                                                                                            |
+| `API_HOST`                    | `0.0.0.0`                                                 | API bind address                                                                                                                                  |
+| `API_PORT`                    | `8000`                                                    | API port                                                                                                                                          |
 
 ## Tech Stack
 
-| Layer              | Technology                    | Purpose                                              |
-| ------------------ | ----------------------------- | ---------------------------------------------------- |
-| **API**            | FastAPI, Pydantic v2, uvicorn | Async REST API with validation                       |
-| **AI/LLM**         | Anthropic Claude Sonnet 4     | Classification, extraction, quality assessment, chat |
-| **Embeddings**     | Voyage AI (voyage-3, 1024d)   | Semantic vector embeddings for RAG                   |
-| **OCR**            | Tesseract + pdf2image         | Text extraction from scanned/image PDFs              |
-| **PDF**            | pypdf                         | Native PDF text extraction                           |
-| **Database**       | PostgreSQL 16 + pgvector      | Relational storage + vector similarity search        |
-| **Object Storage** | MinIO (S3-compatible)         | PDF file storage                                     |
-| **UI**             | Streamlit + Plotly            | Interactive dashboard                                |
-| **Containers**     | Docker Compose                | Infrastructure orchestration                         |
-| **Package Mgmt**   | uv + hatchling                | Fast dependency resolution and builds                |
-| **Linting**        | Ruff                          | Code formatting and linting                          |
-| **Testing**        | pytest + pytest-asyncio       | Async test suite                                     |
+| Layer              | Technology                    | Purpose                                                                            |
+| ------------------ | ----------------------------- | ---------------------------------------------------------------------------------- |
+| **API**            | FastAPI, Pydantic v2, uvicorn | Async REST API with validation                                                     |
+| **AI/LLM**         | Anthropic Claude Sonnet 4     | Classification, extraction, quality assessment, chat                               |
+| **Embeddings**     | Voyage AI (voyage-3, 1024d)   | Semantic vector embeddings for RAG (hash-based fallback if `VOYAGE_API_KEY` unset) |
+| **OCR**            | Tesseract + pdf2image         | Text extraction from scanned/image PDFs                                            |
+| **PDF**            | pypdf                         | Native PDF text extraction                                                         |
+| **Database**       | PostgreSQL 16 + pgvector      | Relational storage + vector similarity search                                      |
+| **Object Storage** | MinIO (S3-compatible)         | PDF file storage                                                                   |
+| **UI**             | Streamlit + Plotly            | Interactive dashboard                                                              |
+| **Containers**     | Docker Compose                | Infrastructure orchestration                                                       |
+| **Package Mgmt**   | uv + hatchling                | Fast dependency resolution and builds                                              |
+| **Linting**        | Ruff                          | Code formatting and linting                                                        |
+| **Testing**        | pytest + pytest-asyncio       | Async test suite                                                                   |
 
 ## Project Structure
 
